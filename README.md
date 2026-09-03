@@ -11,4 +11,8 @@ This repository contains my capstone project for the Frontend AI Engineer intern
 
 ## Tech Stack
 
-The final technology stack will be documented as the project develops.
+- JavaScript / TypeScript
+- React
+- Node.js
+- Git and GitHub
+- AI APIs
