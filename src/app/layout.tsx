@@ -30,6 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Link href="/upload">Upload</Link>
           <Link href="/history">History</Link>
           <Link href="/settings">Settings</Link>
+          <Link href="/health">Health</Link>
         </nav>
         <main className="flex-1">{children}</main>
       </body>
