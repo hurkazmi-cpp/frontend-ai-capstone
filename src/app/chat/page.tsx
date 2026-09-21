@@ -50,7 +50,7 @@ export default function ChatPage() {
                     >
                         {m.parts.map((part, i) =>
                             part.type === "text" ? (
-                                <div key={i} className="prose prose-sm max-w-none">
+                                <div key={i} className="prose prose-sm max-w-none overflow-x-auto">
                                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{part.text}</ReactMarkdown>
                                 </div>
                             ) : null
