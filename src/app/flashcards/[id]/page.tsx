@@ -1,8 +1,117 @@
-export default function FlashcardsPage({ params }: { params: { id: string } }) {
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+
+type Flashcard = { question: string; answer: string };
+
+export default function FlashcardsPage() {
+  const params = useParams();
+  const id = params.id as string;
+
+  const [cards, setCards] = useState<Flashcard[]>([]);
+  const [index, setIndex] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [status, setStatus] = useState<"loading" | "done" | "error">("loading");
+
+  useEffect(() => {
+    async function generateFlashcards() {
+      const stored = localStorage.getItem(`document:${id}`);
+      if (!stored) {
+        setStatus("error");
+        return;
+      }
+
+      const { text } = JSON.parse(stored);
+
+      try {
+        const res = await fetch("/api/flashcards", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+
+        if (!res.ok) throw new Error("Failed to generate flashcards");
+
+        const data = await res.json();
+        if (!data.flashcards || data.flashcards.length === 0) {
+          throw new Error("No flashcards returned");
+        }
+
+        setCards(data.flashcards);
+        setStatus("done");
+      } catch (err) {
+        console.error(err);
+        setStatus("error");
+      }
+    }
+
+    generateFlashcards();
+  }, [id]);
+
+  function handleNext() {
+    setFlipped(false);
+    setIndex((i) => (i + 1) % cards.length);
+  }
+
+  function handlePrev() {
+    setFlipped(false);
+    setIndex((i) => (i - 1 + cards.length) % cards.length);
+  }
+
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-bold">Flashcards</h1>
-      <p className="text-gray-500">Coming soon. (Document ID: {params.id})</p>
+    <main className="p-4 md:p-8 max-w-2xl mx-auto">
+      <div className="glass p-8">
+        <h1 className="text-3xl mb-6">Flashcards</h1>
+
+        {status === "loading" && <p className="text-muted">Generating flashcards...</p>}
+        {status === "error" && (
+          <p style={{ color: "#F2B84B" }}>
+            Couldn't generate flashcards. Try uploading again.
+          </p>
+        )}
+
+        {status === "done" && cards.length > 0 && (
+          <>
+            <p className="text-muted text-sm mb-4">
+              Card {index + 1} of {cards.length}
+            </p>
+
+            <div
+              onClick={() => setFlipped(!flipped)}
+              className="flip-card min-h-[200px] cursor-pointer mb-6"
+            >
+              <div className={`flip-card-inner ${flipped ? "flipped" : ""}`}>
+                <div className="flip-card-front glass">
+                  <p className="text-lg">{cards[index].question}</p>
+                </div>
+                <div className="flip-card-back glass">
+                  <p className="text-lg">{cards[index].answer}</p>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-muted text-sm text-center mb-6">
+              Click the card to {flipped ? "see the question" : "reveal the answer"}
+            </p>
+
+            <div className="flex justify-between gap-4">
+              <button
+                onClick={handlePrev}
+                className="glass glow-hover px-6 py-2 rounded-lg"
+              >
+                Previous
+              </button>
+              <button
+                onClick={handleNext}
+                className="glass glow-hover px-6 py-2 rounded-lg"
+              >
+                Next
+              </button>
+            </div>
+          </>
+        )}
+      </div>
     </main>
   );
 }

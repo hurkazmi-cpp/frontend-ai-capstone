@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
+import { Fraunces, Inter } from "next/font/google";
+import { Settings as SettingsIcon } from "lucide-react";
+import MobileNav from "@/components/MobileNav";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const fraunces = Fraunces({
+  variable: "--font-heading",
   subsets: ["latin"],
+  weight: ["500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-body",
   subsets: ["latin"],
 });
 
@@ -22,19 +25,38 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <nav className="flex flex-wrap gap-4 p-4 border-b border-gray-200">
-          <Link href="/" className="font-semibold">Home</Link>
-          <Link href="/upload">Upload</Link>
-          <Link href="/history">History</Link>
-          <Link href="/health">Health</Link>
-          <Link href="/chat">Chat</Link>
-          <Link href="/settings">Settings</Link>
+        <div className="ambient-bg">
+          <div className="orb orb-1" />
+          <div className="orb orb-2" />
+          <div className="orb orb-3" />
+        </div>
+        <nav className="glass hidden md:flex items-center gap-2 p-3 m-4 max-w-3xl mx-auto justify-between">
+          <div className="flex flex-wrap gap-2 flex-1 min-w-0">
+            <Link href="/" className="glow-hover px-4 py-2 rounded-lg font-medium">
+              <span className="nav-link">Home</span>
+            </Link>
+            <Link href="/upload" className="glow-hover px-4 py-2 rounded-lg">
+              <span className="nav-link">Upload</span>
+            </Link>
+            <Link href="/history" className="glow-hover px-4 py-2 rounded-lg">
+              <span className="nav-link">History</span>
+            </Link>
+            <Link href="/chat" className="glow-hover px-4 py-2 rounded-lg">
+              <span className="nav-link">Chat</span>
+            </Link>
+          </div>
+          <Link href="/settings" className="glow-hover p-2 rounded-lg flex-shrink-0" aria-label="Settings">
+            <SettingsIcon size={20} />
+          </Link>
         </nav>
-        <main className="flex-1">{children}</main>
-      </body>
-    </html>
+      <MobileNav />
+
+      <main className="flex-1 pb-20 md:pb-0">{children}</main>
+
+    </body>
+    </html >
   );
 }
