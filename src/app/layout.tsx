@@ -29,8 +29,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Link href="/" className="font-semibold">Home</Link>
           <Link href="/upload">Upload</Link>
           <Link href="/history">History</Link>
-          <Link href="/settings">Settings</Link>
           <Link href="/health">Health</Link>
+          <Link href="/chat">Chat</Link>
+          <Link href="/settings">Settings</Link>
         </nav>
         <main className="flex-1">{children}</main>
       </body>
