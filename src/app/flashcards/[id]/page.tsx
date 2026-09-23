@@ -5,6 +5,15 @@ import { useParams } from "next/navigation";
 
 type Flashcard = { question: string; answer: string };
 
+async function fetchWithRetry(url: string, options: RequestInit, retries = 2): Promise<Response> {
+  for (let i = 0; i <= retries; i++) {
+    const res = await fetch(url, options);
+    if (res.ok) return res;
+    if (i < retries) await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
+  }
+  return fetch(url, options); // final attempt, let caller handle failure
+}
+
 export default function FlashcardsPage() {
   const params = useParams();
   const id = params.id as string;
@@ -25,7 +34,7 @@ export default function FlashcardsPage() {
       const { text } = JSON.parse(stored);
 
       try {
-        const res = await fetch("/api/flashcards", {
+        const res = await fetchWithRetry("/api/flashcards", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text }),
@@ -51,12 +60,16 @@ export default function FlashcardsPage() {
 
   function handleNext() {
     setFlipped(false);
-    setIndex((i) => (i + 1) % cards.length);
+    setTimeout(() => {
+      setIndex((i) => (i + 1) % cards.length);
+    }, 300);
   }
 
   function handlePrev() {
     setFlipped(false);
-    setIndex((i) => (i - 1 + cards.length) % cards.length);
+    setTimeout(() => {
+      setIndex((i) => (i - 1 + cards.length) % cards.length);
+    }, 300);
   }
 
   return (
@@ -80,6 +93,7 @@ export default function FlashcardsPage() {
             <div
               onClick={() => setFlipped(!flipped)}
               className="flip-card min-h-[200px] cursor-pointer mb-6"
+              style={{ height: "auto" }}
             >
               <div className={`flip-card-inner ${flipped ? "flipped" : ""}`}>
                 <div className="flip-card-front glass">

@@ -14,6 +14,15 @@ type Question = {
   explanation: string;
 };
 
+async function fetchWithRetry(url: string, options: RequestInit, retries = 2): Promise<Response> {
+  for (let i = 0; i <= retries; i++) {
+    const res = await fetch(url, options);
+    if (res.ok) return res;
+    if (i < retries) await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
+  }
+  return fetch(url, options); // final attempt, let caller handle failure
+}
+
 export default function QuizPage() {
   const params = useParams();
   const id = params.id as string;
@@ -40,7 +49,7 @@ export default function QuizPage() {
       const { text } = JSON.parse(stored);
 
       try {
-        const res = await fetch("/api/quiz", {
+        const res = await fetchWithRetry("/api/quiz", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text }),
@@ -117,13 +126,24 @@ export default function QuizPage() {
 
   function finishQuiz() {
     const existing = localStorage.getItem("weakSpots");
-    const weakSpots: Record<string, number> = existing ? JSON.parse(existing) : {};
+    const weakSpots: Record<string, { count: number; docId: string }> = existing
+      ? JSON.parse(existing)
+      : {};
 
     missedTopics.forEach((topic) => {
-      weakSpots[topic] = (weakSpots[topic] || 0) + 1;
+      const prevCount = weakSpots[topic]?.count || 0;
+      weakSpots[topic] = { count: prevCount + 1, docId: id };
     });
 
     localStorage.setItem("weakSpots", JSON.stringify(weakSpots));
+
+    // Track overall stats
+    const statsRaw = localStorage.getItem("studyStats");
+    const stats = statsRaw ? JSON.parse(statsRaw) : { quizzesTaken: 0, bestStreak: 0 };
+    stats.quizzesTaken += 1;
+    stats.bestStreak = Math.max(stats.bestStreak, bestStreak);
+    localStorage.setItem("studyStats", JSON.stringify(stats));
+
     setStatus("finished");
   }
 

@@ -7,6 +7,15 @@ import remarkGfm from "remark-gfm";
 import CodeBlock from "@/components/CodeBlock";
 import Link from "next/link";
 
+async function fetchWithRetry(url: string, options: RequestInit, retries = 2): Promise<Response> {
+  for (let i = 0; i <= retries; i++) {
+    const res = await fetch(url, options);
+    if (res.ok) return res;
+    if (i < retries) await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
+  }
+  return fetch(url, options); // final attempt, let caller handle failure
+}
+
 export default function SummaryPage() {
     const params = useParams();
     const id = params.id as string;
@@ -27,7 +36,7 @@ export default function SummaryPage() {
             setDocName(name);
 
             try {
-                const res = await fetch("/api/summary", {
+                const res = await fetchWithRetry("/api/summary", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ text }),

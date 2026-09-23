@@ -133,6 +133,7 @@ h1, h2, h3, h4 {
   justify-content: center;
   text-align: center;
   padding: 2.5rem;
+  overflow: hidden;
 }
 
 .flip-card-back {
@@ -272,4 +273,42 @@ main {
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(139, 127, 209, 0.4) transparent;
+}
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.particle {
+  position: absolute;
+  bottom: -10px;
+  border-radius: 50%;
+  background: rgba(245, 243, 255, 0.4);
+  animation-name: drift;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes drift {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-110vh);
+    opacity: 0;
+  }
+}
+@media (max-width: 767px) {
+  h1 { font-size: 1.5rem !important; }
+  .glass { padding: 1.1rem !important; }
 }

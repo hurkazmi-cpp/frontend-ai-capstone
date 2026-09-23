@@ -3,16 +3,57 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import CodeBlock from "@/components/CodeBlock";
 import { Send, Square, MessageCircle } from "lucide-react";
 
+function getDocumentContext(docId?: string | null): string | undefined {
+  if (docId) {
+    const stored = localStorage.getItem(`document:${docId}`);
+    if (stored) return JSON.parse(stored).text;
+  }
+
+  const keys = Object.keys(localStorage).filter((k) => k.startsWith("document:"));
+  if (keys.length === 0) return undefined;
+
+  let latestKey = keys[0];
+  let latestTime = 0;
+  keys.forEach((key) => {
+    const doc = JSON.parse(localStorage.getItem(key) || "{}");
+    if (doc.uploadedAt > latestTime) {
+      latestTime = doc.uploadedAt;
+      latestKey = key;
+    }
+  });
+
+  const stored = localStorage.getItem(latestKey);
+  return stored ? JSON.parse(stored).text : undefined;
+}
+
 export default function ChatPage() {
   const [input, setInput] = useState("");
+  const [hasContext, setHasContext] = useState(false);
+
+  const searchParams = useSearchParams();
+  const docId = searchParams.get("docId");
+
   const { messages, sendMessage, status, stop } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/chat" }),
+    transport: new DefaultChatTransport({
+      api: "/api/chat",
+      body: () => ({ context: getDocumentContext(docId) }),
+    }),
   });
+
+  useEffect(() => {
+    setHasContext(!!getDocumentContext(docId));
+
+    const ask = searchParams.get("ask");
+    if (ask) {
+      sendMessage({ text: ask });
+    }
+  }, []);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
@@ -38,7 +79,11 @@ export default function ChatPage() {
 
   return (
     <main className="p-4 md:p-8 max-w-2xl mx-auto flex flex-col h-[calc(100vh-120px)]">
-      <h1 className="text-2xl mb-4">Chat with your Study Buddy</h1>
+      <h1 className="text-2xl mb-2">Chat with your Study Buddy</h1>
+
+      {hasContext && (
+        <p className="text-muted text-xs mb-4">Chatting with context from your latest upload</p>
+      )}
 
       <div
         className="flex-1 overflow-y-auto space-y-3 mb-4"
@@ -71,9 +116,8 @@ export default function ChatPage() {
         {messages.map((m) => (
           <div
             key={m.id}
-            className={`p-4 rounded-2xl max-w-[85%] ${
-              m.role === "user" ? "ml-auto" : ""
-            }`}
+            className={`p-4 rounded-2xl max-w-[85%] ${m.role === "user" ? "ml-auto" : ""
+              }`}
             style={{
               background:
                 m.role === "user"

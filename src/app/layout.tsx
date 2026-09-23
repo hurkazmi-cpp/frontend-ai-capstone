@@ -4,6 +4,8 @@ import "./globals.css";
 import { Fraunces, Inter } from "next/font/google";
 import { Settings as SettingsIcon } from "lucide-react";
 import MobileNav from "@/components/MobileNav";
+import CursorGlow from "@/components/CursorGlow";
+import ParticleField from "@/components/ParticleField";
 
 const fraunces = Fraunces({
   variable: "--font-heading",
@@ -33,6 +35,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <div className="orb orb-2" />
           <div className="orb orb-3" />
         </div>
+
+        <div className="grain-overlay" />
+        <ParticleField />
+        <CursorGlow />
+
         <nav className="glass hidden md:flex items-center gap-2 p-3 m-4 max-w-3xl mx-auto justify-between">
           <div className="flex flex-wrap gap-2 flex-1 min-w-0">
             <Link href="/" className="glow-hover px-4 py-2 rounded-lg font-medium">
@@ -52,11 +59,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <SettingsIcon size={20} />
           </Link>
         </nav>
-      <MobileNav />
+        <MobileNav />
 
-      <main className="flex-1 pb-20 md:pb-0">{children}</main>
+        <main className="flex-1 pb-20 md:pb-0">{children}</main>
 
-    </body>
+      </body>
     </html >
   );
 }
