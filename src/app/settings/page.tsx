@@ -50,10 +50,10 @@ export default function SettingsPage() {
 
         <button
           onClick={handleClearData}
-          className="glass glow-hover px-5 py-2 rounded-lg flex items-center gap-2 text-sm"
+          className="glow-hover px-5 py-2 rounded-lg flex items-center gap-2 text-sm"
           style={{
-            borderColor: confirmClear ? "#F2B84B" : undefined,
-            borderWidth: confirmClear ? "1.5px" : undefined,
+            background: confirmClear ? "rgba(242, 184, 75, 0.15)" : "rgba(255, 255, 255, 0.08)",
+            border: confirmClear ? "1.5px solid #F2B84B" : "1px solid rgba(255, 255, 255, 0.12)",
           }}
         >
           <Trash2 size={16} />
