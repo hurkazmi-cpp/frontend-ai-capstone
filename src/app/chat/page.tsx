@@ -2,7 +2,7 @@
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -32,7 +32,7 @@ function getDocumentContext(docId?: string | null): string | undefined {
   return stored ? JSON.parse(stored).text : undefined;
 }
 
-export default function ChatPage() {
+function ChatPageInner() {
   const [input, setInput] = useState("");
   const [hasContext, setHasContext] = useState(false);
 
@@ -116,8 +116,9 @@ export default function ChatPage() {
         {messages.map((m) => (
           <div
             key={m.id}
-            className={`p-4 rounded-2xl max-w-[85%] ${m.role === "user" ? "ml-auto" : ""
-              }`}
+            className={`p-4 rounded-2xl max-w-[85%] ${
+              m.role === "user" ? "ml-auto" : ""
+            }`}
             style={{
               background:
                 m.role === "user"
@@ -182,5 +183,13 @@ export default function ChatPage() {
         )}
       </form>
     </main>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-muted">Loading chat...</div>}>
+      <ChatPageInner />
+    </Suspense>
   );
 }
