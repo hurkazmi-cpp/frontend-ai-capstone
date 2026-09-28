@@ -5,10 +5,7 @@ import { Fraunces, Inter } from "next/font/google";
 import { Settings as SettingsIcon } from "lucide-react";
 import MobileNav from "@/components/MobileNav";
 import Logo from "@/components/Logo";
-import dynamic from "next/dynamic";
-
-const ParticleField = dynamic(() => import("@/components/ParticleField"), { ssr: false });
-const CursorGlow = dynamic(() => import("@/components/CursorGlow"), { ssr: false });
+import AmbientEffects from "@/components/AmbientEffects";
 
 const fraunces = Fraunces({
   variable: "--font-heading",
@@ -40,8 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </div>
 
         <div className="grain-overlay" />
-        <ParticleField />
-        <CursorGlow />
+       <AmbientEffects />
 
         <nav
           className="glass hidden md:flex items-center gap-2 p-3 m-4 max-w-3xl mx-auto justify-between"
