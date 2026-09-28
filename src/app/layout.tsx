@@ -4,9 +4,11 @@ import "./globals.css";
 import { Fraunces, Inter } from "next/font/google";
 import { Settings as SettingsIcon } from "lucide-react";
 import MobileNav from "@/components/MobileNav";
-import CursorGlow from "@/components/CursorGlow";
-import ParticleField from "@/components/ParticleField";
 import Logo from "@/components/Logo";
+import dynamic from "next/dynamic";
+
+const ParticleField = dynamic(() => import("@/components/ParticleField"), { ssr: false });
+const CursorGlow = dynamic(() => import("@/components/CursorGlow"), { ssr: false });
 
 const fraunces = Fraunces({
   variable: "--font-heading",
